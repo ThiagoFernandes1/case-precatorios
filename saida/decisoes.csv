@@ -1,0 +1,26 @@
+arquivo,linha,chave,situacao,motivo
+hub.csv,3,0023456-21.2020.8.26.0053,corrigido,processo gravado sem máscara (00234562120208260053); normalizado para casar com as outras fontes
+pagamentos.json,2,ev-001,descartado,"versão antiga (atualizado_em 2025-03-10T10:00:00-03:00, valor 15000.0); substituída pela da linha 66 (atualizado_em 2025-03-11T09:00:00-03:00, valor 15500.0)"
+pagamentos.json,10,ev-002,corrigido,"valor veio como texto no formato brasileiro ('2.500,50'); lido como 2500.50; data '10/04/2025' lida como 2025-04-10; a leitura 2025-10-04 seria depois da última atualização do registro (2025-04-10)"
+pagamentos.json,18,ev-003,ok,importado sem alteração
+pagamentos.json,26,ev-002,descartado,cópia idêntica do registro da linha 10
+pagamentos.json,34,ev-004,em_duvida,valor ausente (null)
+pagamentos.json,42,ev-005,corrigido,processo sem máscara (00234562120208260053) normalizado
+pagamentos.json,50,ev-006,ok,importado sem alteração
+pagamentos.json,58,ev-007,ok,"tipo 'estorno' não está na documentação (que diz 'sempre pagamento'); subtraído do total, como o banco já prevê"
+pagamentos.json,66,ev-001,em_duvida,"pagamento em 2025-03-10, antes da apresentação do precatório (2025-04-02)"
+pagamentos.json,74,ev-008,ok,importado sem alteração
+pagamentos.json,82,ev-009,em_duvida,"valor negativo (-200.00) em evento do tipo 'pagamento': pode ser um estorno lançado com o tipo errado, mas não há como confirmar"
+pagamentos.json,90,ev-010,em_duvida,processo vazio; valor 750 sem precatório para atribuir
+pagamentos.json,98,ev-011,ok,importado sem alteração
+todos,,dígito verificador,aviso,6 de 6 processos têm DV CNJ inválido. Esperado se os números são fictícios; em produção isso deveria barrar o registro.
+tribunal.csv,,documentação,aviso,codificação cp1252; a documentação diz UTF-8
+tribunal.csv,,documentação,aviso,separador ';'; a documentação diz vírgula
+tribunal.csv,,documentação,aviso,"valor_face com vírgula decimal nas linhas [2, 3, 4, 5, 6]; a documentação diz ponto"
+pagamentos.json,,documentação,aviso,"valor em texto nas linhas [10, 26]; a documentação diz número"
+pagamentos.json,,documentação,aviso,"data_pagamento fora de AAAA-MM-DD nas linhas [10, 26]"
+pagamentos.json,,documentação,aviso,tipo diferente de 'pagamento' nas linhas [58]; a documentação diz que é sempre 'pagamento'
+pagamentos.json,,documentação,aviso,"evento_id repetido: ev-001, ev-002; a documentação diz que é único"
+pagamentos.json,,documentação,aviso,os eventos vão de 2025-02-20 a 2025-08-10; o arquivo deveria trazer só os últimos 7 dias
+apresentacoes.json,,documentação,aviso,arquivo não aparece na documentação do tribunal
+apresentacoes.json,,documentação,aviso,"apresentado_em mistura data pura e data com hora e fuso (com hora nas linhas [14, 18])"
