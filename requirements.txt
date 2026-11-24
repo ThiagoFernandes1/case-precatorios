@@ -1,0 +1,2 @@
+# Base de fuso horário do Python; no Windows ela não vem com o sistema.
+tzdata
