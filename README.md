@@ -5,7 +5,7 @@ O resultado da limpeza já gerado está em [saida/relatorio.md](saida/relatorio.
 
 ## Como rodar
 
-Precisa de Python 3.10 ou mais recente.
+Precisa de Python 3.10 ou mais recente (testado em 3.10 e 3.11).
 
 ```bash
 python -m venv .venv
@@ -43,26 +43,30 @@ Arquivos de saída:
 - `precatorios.csv`: um precatório por linha, com prazo recalculado, total pago, valor em
   dúvida, saldo e o que diverge entre tribunal e hub.
 - `pagamentos.csv`: um evento por `evento_id`, indicando se conta no total.
-- `decisoes.csv`: cada registro de origem (arquivo e linha) com a situação (ok, corrigido,
-  descartado, em dúvida) e o motivo.
+- `decisoes.csv`: cada registro de pagamento (com arquivo e linha) e cada precatório, com a
+  situação (ok, corrigido, descartado, em dúvida) e o motivo, mais os avisos sobre o formato
+  dos arquivos.
 - `relatorio.md`: o mesmo conteúdo em texto, para a operação ler.
 
 ## Uso de IA
 
 Usei o Claude Code durante o case: para inspecionar os arquivos (encoding, bytes, fim de
-linha), escrever o código e os testes e redigir os textos. As regras de decisão da limpeza e
-a ordem dos problemas foram revisadas por mim.
+linha), escrever o código, os testes e o SQL e redigir os textos.
 
-Como conferi o que saiu:
+Como o que a IA produziu foi conferido:
 
-- Refiz à mão os totais por processo e os prazos dos seis precatórios. O teste de ponta a
-  ponta (`tests/test_ponta_a_ponta.py`) trava esses números.
-- Conferi cada linha citada no ANALISE.md contra os arquivos em `recebido/`.
+- Os totais por processo e os prazos dos seis precatórios foram calculados à parte, antes de
+  existir código, e depois comparados com a saída do programa. O teste de ponta a ponta
+  (`tests/test_ponta_a_ponta.py`) trava esses números.
+- As linhas citadas no ANALISE.md foram conferidas contra os arquivos em `recebido/`.
+- Foi um teste que corrigiu uma conta feita de cabeça: o prazo do 0067890 é 2025, não 2024.
 - A afirmação de que nenhuma regra única explica os prazos do hub foi testada com um script
   que roda as oito combinações de regra possíveis contra o `hub.csv`.
-- Rodei o `sql/prevencao.sql` num PostgreSQL 16 local, depois do `schema.sql` recebido, com
+- O `sql/prevencao.sql` foi rodado num PostgreSQL 16 local, depois do `schema.sql` recebido, com
   os eventos do case: reimportação, versão antiga chegando depois, estorno, número com
   máscara. Foi assim que apareceu o problema da constraint `NOT VALID`, que está explicado
   no SQL.
+- Os testes e a limpeza foram rodados num clone limpo do repositório em Python 3.10, e a
+  saída gerada foi idêntica à versionada.
 - Um teste de ponta a ponta falhou logo depois de um commit (dá para ver no histórico): o
   teste estava errado, não o código, e a correção está no commit seguinte.
