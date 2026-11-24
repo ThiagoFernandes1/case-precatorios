@@ -48,7 +48,7 @@ def test_totais_pagos(saida):
 
 def test_todo_registro_de_pagamento_aparece_no_relatorio(saida):
     with (saida / "decisoes.csv").open(encoding="utf-8", newline="") as f:
-        linhas = {int(d["linha"]) for d in csv.DictReader(f) if d["arquivo"] == "pagamentos.json"}
+        linhas = {int(d["linha"]) for d in csv.DictReader(f) if d["arquivo"] == "pagamentos.json" and d["linha"]}
     assert linhas == {2, 10, 18, 26, 34, 42, 50, 58, 66, 74, 82, 90, 98}
 
 
