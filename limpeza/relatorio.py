@@ -11,6 +11,7 @@ from .normalizacao import formatar_cnj
 from .pipeline import Resultado
 
 SITUACOES = [OK, CORRIGIDO, DESCARTADO, EM_DUVIDA]
+ROTULOS = {OK: "ok", CORRIGIDO: "corrigidos", DESCARTADO: "descartados", EM_DUVIDA: "em dúvida"}
 
 
 def _brl(valor: Decimal | None) -> str:
@@ -74,8 +75,16 @@ def _pagamentos_csv(r: Resultado, caminho: Path) -> None:
                    "atualizado_em", "linha_origem", "conta_no_total", "situacao", "observacoes"], linhas)
 
 
+def _fontes(p) -> str:
+    return " + ".join(n for n, presente in (("tribunal.csv", p.no_tribunal), ("hub.csv", p.no_hub)) if presente)
+
+
 def _decisoes_csv(r: Resultado, caminho: Path) -> None:
-    linhas = [[o.arquivo, o.linha or "", o.chave, o.situacao, o.motivo] for o in r.ocorrencias + r.avisos]
+    """Uma linha por registro de pagamento, por ajuste de cadastro, por precatório e por aviso."""
+    linhas = [[o.arquivo, o.linha or "", o.chave, o.situacao, o.motivo] for o in r.ocorrencias]
+    linhas += [[_fontes(p), "", formatar_cnj(p.processo), p.situacao, " | ".join(p.observacoes) or "sem divergência"]
+               for p in r.precatorios.values()]
+    linhas += [[o.arquivo, "", o.chave, o.situacao, o.motivo] for o in r.avisos]
     _csv(caminho, ["arquivo", "linha", "chave", "situacao", "motivo"], linhas)
 
 
@@ -105,7 +114,7 @@ def _markdown(r: Resultado) -> str:
 
     s.append("## Resumo\n")
     s.append(f"- Registros em pagamentos.json: {len(oc_pag)}. "
-             + ", ".join(f"{contagem.get(k, 0)} {k.replace('_', ' ')}" for k in SITUACOES) + ".")
+             + ", ".join(f"{contagem.get(k, 0)} {ROTULOS[k]}" for k in SITUACOES) + ".")
     s.append(f"- Total pago confirmado: {_brl(total_pago)}. Em dúvida (fora do total): {_brl(em_duvida)}, "
              "mais os eventos em dúvida sem valor ou sem processo listados abaixo.")
     s.append(f"- Precatórios na base: {len(ps)} "

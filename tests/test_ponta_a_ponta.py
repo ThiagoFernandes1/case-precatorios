@@ -55,3 +55,12 @@ def test_todo_registro_de_pagamento_aparece_no_relatorio(saida):
 def test_saida_dentro_da_entrada_e_recusada():
     with pytest.raises(SystemExit):
         main(["--entrada", str(ENTRADA), "--saida", str(ENTRADA / "x")])
+
+
+def test_decisoes_trazem_tambem_as_divergencias_de_precatorio(saida):
+    with (saida / "decisoes.csv").open(encoding="utf-8", newline="") as f:
+        por_chave = {d["chave"]: d for d in csv.DictReader(f) if d["arquivo"].startswith(("tribunal", "hub"))
+                     and not d["linha"]}
+    assert por_chave["0045678-43.2021.5.02.0011"]["situacao"] == "em_duvida"
+    assert "ente diverge" in por_chave["0045678-43.2021.5.02.0011"]["motivo"]
+    assert por_chave["0067890-65.2016.8.26.0053"]["arquivo"] == "tribunal.csv"

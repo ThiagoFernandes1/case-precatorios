@@ -13,6 +13,12 @@ pagamentos.json,74,ev-008,ok,importado sem alteração
 pagamentos.json,82,ev-009,em_duvida,"valor negativo (-200.00) em evento do tipo 'pagamento': pode ser um estorno lançado com o tipo errado, mas não há como confirmar"
 pagamentos.json,90,ev-010,em_duvida,processo vazio; valor 750 sem precatório para atribuir
 pagamentos.json,98,ev-011,ok,importado sem alteração
+tribunal.csv + hub.csv,,0012345-10.2019.8.26.0053,em_duvida,"prazo recalculado: hub dizia 2027-12-31, o correto é 2026-12-31; apresentado exatamente em 2 de abril, que está dentro do ""até 2 de abril"" | evento ev-001 (15500.00) em dúvida, fora do total pago"
+tribunal.csv + hub.csv,,0023456-21.2020.8.26.0053,em_duvida,"valor de face diverge: tribunal 30000.00 (tribunal.csv linha 3), hub 31000.00 (hub.csv linha 3); mantido o do tribunal | evento ev-004 em dúvida: valor ausente (null)"
+tribunal.csv + hub.csv,,0034567-32.2018.8.26.0405,ok,sem divergência
+tribunal.csv + hub.csv,,0045678-43.2021.5.02.0011,em_duvida,"ente diverge: tribunal 'União' (tribunal.csv linha 5), hub 'Município de Santos' (hub.csv linha 5)"
+hub.csv,,0056789-54.2017.4.03.6100,em_duvida,"está no hub mas não na lista do tribunal: pode ter sido pago, cancelado ou ser de outra lista | apresentação veio como instante (2025-04-03T01:00:00Z); no horário de Brasília o dia é 2025-04-02 | prazo recalculado: hub dizia 2027-12-31, o correto é 2026-12-31; o hub parece ter usado a data escrita no campo, que está em UTC, e não o dia em Brasília | evento ev-009 em dúvida: valor negativo (-200.00) em evento do tipo 'pagamento': pode ser um estorno lançado com o tipo errado, mas não há como confirmar"
+tribunal.csv,,0067890-65.2016.8.26.0053,em_duvida,está na lista do tribunal mas não no hub: a operação não enxerga este precatório
 todos,,dígito verificador,aviso,6 de 6 processos têm DV CNJ inválido. Esperado se os números são fictícios; em produção isso deveria barrar o registro.
 tribunal.csv,,documentação,aviso,codificação cp1252; a documentação diz UTF-8
 tribunal.csv,,documentação,aviso,separador ';'; a documentação diz vírgula

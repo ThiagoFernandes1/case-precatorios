@@ -13,7 +13,7 @@ Data de referência (para prazo vencido): 2026-11-24. Gerado por `python -m limp
 
 ## Resumo
 
-- Registros em pagamentos.json: 13. 5 ok, 2 corrigido, 2 descartado, 4 em duvida.
+- Registros em pagamentos.json: 13. 5 ok, 2 corrigidos, 2 descartados, 4 em dúvida.
 - Total pago confirmado: R$ 18.700,50. Em dúvida (fora do total): R$ 15.500,00, mais os eventos em dúvida sem valor ou sem processo listados abaixo.
 - Precatórios na base: 6 (4 nas duas listas, 1 só no tribunal, 1 só no hub).
 - Comparação tribunal x hub: dos 4 precatórios que estão nas duas listas, comparar número e nome do ente exatamente como escritos marca 3 como diferentes. Em 2 a diferença é só de escrita (máscara, acento, caixa). Divergências reais: ente em 0045678-43.2021.5.02.0011; valor de face em 0023456-21.2020.8.26.0053, que a comparação manual não olha.
