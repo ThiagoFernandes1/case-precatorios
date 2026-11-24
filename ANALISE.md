@@ -8,8 +8,8 @@ Data de referência usada para falar de prazo: 24/11/2026.
 
 ## Resumo
 
-Os números não batem por dois motivos que se compensam e por isso ninguém consegue apontar
-onde está o erro. A importação soma a mais (o mesmo evento entra mais de uma vez e o estorno
+Os números não batem por dois erros que puxam em sentidos opostos, e por isso ninguém
+consegue apontar onde está o problema. A importação soma a mais (o mesmo evento entra mais de uma vez e o estorno
 entra como pagamento) e soma a menos (evento que não passa na validação some sem aviso). Os
 dois erros se misturam no mesmo total, e o total por processo fica errado nos dois sentidos.
 
@@ -50,7 +50,8 @@ os erros, por último o que é causa de fundo.
 
 ### 1.1 A importação soma de novo o que já foi importado
 
-Causa raiz.
+Causa: é a principal razão de o total pago ficar maior que o do tribunal. É agravado por
+1.9, porque a documentação não diz que um evento pode chegar em mais de uma versão.
 
 Evidência:
 - `pagamentos.json` linhas 10 e 26: o evento `ev-002` aparece duas vezes, idêntico.
@@ -76,7 +77,8 @@ mas a de versões continua (a primeira versão do ev-001 fica, ou as duas).
 
 ### 1.2 Estorno entra como pagamento
 
-Consequência da documentação desatualizada (1.9) e do script que "soma cada valor".
+Consequência de 1.9 (a documentação diz que o tipo é sempre "pagamento") e do script que
+"soma cada valor". É causa de total pago inflado e de saldo subestimado.
 
 Evidência:
 - `pagamentos.json` linhas 50 e 58: `ev-006` é um pagamento de 5.000,00 e `ev-007` um
@@ -85,14 +87,14 @@ Evidência:
 - `schema.sql`: a tabela aceita `tipo = 'estorno'` com `valor > 0`. O sinal tem que vir do
   tipo, mas o fluxo descreve um script que só soma.
 
-Impacto: o processo 0034567 aparece com 10.000,00 pagos quando o líquido é zero. É o caso
-mais grave da carteira: o prazo dele venceu em 31/12/2025, o saldo real é o valor de face
+Impacto: pela premissa do 1.1, o processo 0034567 aparece com 10.000,00 pagos quando o
+líquido é zero. É o caso mais grave da carteira: o prazo dele venceu em 31/12/2025, o saldo real é o valor de face
 inteiro (12.500,00) e o sistema mostra 80% pago.
 
 ### 1.3 Prazo de pagamento errado, sempre um ano para frente
 
-Causa de priorização errada. Vem de duas falhas no cálculo, agravadas pela data de
-apresentação em formatos misturados (1.9).
+Causa de priorização errada. É consequência de duas falhas no cálculo e da data de
+apresentação vir em formatos misturados (1.9).
 
 Evidência, em `hub.csv` (o prazo certo está recalculado em `saida/precatorios.csv`):
 
@@ -115,8 +117,8 @@ foi editado à mão. Está nas dúvidas.
 
 ### 1.4 Evento que não entra some sem aviso
 
-Causa de "ninguém sabe onde está o erro". Também é o que transforma os problemas 1.6 e 1.8
-em dinheiro faltando.
+Causa: é o que faz "ninguém saber onde está o erro", e é o que transforma 1.6 e 1.8 em
+dinheiro faltando no total.
 
 Evidência (fluxo, passo 5: "o script ignora e segue"). Eventos deste arquivo que o banco
 atual ou uma validação simples recusaria:
@@ -130,13 +132,14 @@ atual ou uma validação simples recusaria:
 | 90 | ev-010 | processo vazio | 750,00 |
 | 98 | ev-011 | processo 0067890 não existe no hub (falha a chave estrangeira) | 4.000,00 |
 
-Impacto: até 6 dos 11 eventos distintos podem estar sumindo, e não fica rastro. Quando o total não
-bate, não há lista do que ficou de fora para conferir. Isso faz o erro de 1.1 (soma a mais)
+Impacto: até 6 dos 11 eventos distintos podem estar sumindo sem deixar rastro. Quando o
+total não bate, não há lista do que ficou de fora para conferir. Isso faz o erro de 1.1 (soma a mais)
 se misturar com este (soma a menos) sem ninguém conseguir separar um do outro.
 
 ### 1.5 Tribunal e hub não têm a mesma carteira
 
-Consequência da falta de reconciliação automática (1.7).
+Consequência de a conferência semanal não funcionar (1.7). É causa de pagamento recusado
+(1.4) e de precatório vencido fora da priorização.
 
 Evidência:
 - `tribunal.csv` linha 6: 0067890-65.2016.8.26.0053, Município de São Paulo, 7.000,00,
@@ -146,7 +149,7 @@ Evidência:
   `tribunal.csv`.
 
 Impacto: o 0067890 está vencido, com saldo de 3.000,00, e a equipe não o enxerga. O
-pagamento dele é recusado todo dia. O 0056789 pode ter sido pago, cancelado ou pertencer a
+pagamento dele (`ev-011`) não tem onde entrar e some sem aviso. O 0056789 pode ter sido pago, cancelado ou pertencer a
 outra lista (é da Justiça Federal, 4.03, e os outros são do TJSP e do TRT2); sem saber, a
 equipe pode estar priorizando algo que não existe mais.
 
@@ -193,7 +196,8 @@ apareceu aqui mas é comum: um número de processo só com dígitos, como o do 0
 
 ### 1.8 Eventos que não fecham com o resto dos dados
 
-Causa no tribunal. Precisam de resposta deles, não de correção nossa.
+Causa: são erros na origem, no tribunal, e viram parte de 1.4 (somem do total). Precisam
+de resposta do tribunal, não de correção nossa.
 
 Evidência:
 - `ev-001` (linha 66): pagamento em 10/03/2025 de um precatório apresentado em 02/04/2025
@@ -209,7 +213,8 @@ deixa esses valores fora do total e lista cada um.
 
 ### 1.9 A documentação do tribunal não descreve os arquivos que chegam
 
-Causa de fundo de 1.2 e de boa parte de 1.4: o script foi escrito seguindo a documentação.
+Causa de fundo de 1.1, 1.2 e de boa parte de 1.4: o script foi escrito seguindo a
+documentação.
 
 | documentação diz | o que veio | onde |
 |---|---|---|
@@ -220,7 +225,7 @@ Causa de fundo de 1.2 e de boa parte de 1.4: o script foi escrito seguindo a doc
 | `processo` no formato CNJ | sem máscara, vazio | linhas 42, 90 |
 | arquivo traz os últimos 7 dias | eventos de 20/02/2025 a 10/08/2025 | todo o arquivo |
 | tribunal.csv em UTF-8, vírgula, ponto | cp1252, ponto e vírgula, vírgula decimal | todo o arquivo (ver 1.7) |
-| não fala de `apresentacoes.json` | o arquivo existe e mistura data pura com data e hora com fuso | linhas 14 e 18 |
+| não fala de `apresentacoes.json` | o arquivo existe e mistura data pura com data e hora com fuso | linhas 14 e 18 (o hub.csv repete isso nas linhas 5 e 6) |
 
 Também não diz o que significa `atualizado_em` (se a versão mais nova substitui a anterior),
 como o estorno aponta o pagamento que estorna, nem se a lista de precatórios é completa ou
@@ -233,8 +238,8 @@ enunciado diz que os processos são fictícios, tratei isso como aviso e não co
 
 Código em `limpeza/`, testes em `tests/`, saída em `saida/`. Como rodar está no README.
 
-Cada registro de origem termina em uma de quatro situações, e todas ficam em
-`saida/decisoes.csv` com arquivo, linha e motivo:
+Cada registro de pagamento e cada precatório termina em uma de quatro situações, e todas
+ficam em `saida/decisoes.csv` com arquivo, linha (quando se aplica) e motivo:
 
 - ok: entrou como veio.
 - corrigido: entrou depois de uma correção que só tinha uma leitura possível.
@@ -374,5 +379,8 @@ avisada.
    outra coisa.
 7. A regra de 2 de abril vem da EC 114/2021; antes o corte era 1º de julho. Há na carteira
    precatório apresentado antes da mudança? Se sim, qual regra vocês querem aplicar?
-8. Quem resolve os itens em dúvida e em quanto tempo? Algum relatório ou pessoa depende dos
+8. O valor pago inclui correção monetária e juros? Se incluir, o total pago pode passar do
+   valor de face, e o saldo que a base calcula (valor de face menos total pago) subestima o
+   que falta receber. Para priorizar, o certo seria comparar com o valor atualizado.
+9. Quem resolve os itens em dúvida e em quanto tempo? Algum relatório ou pessoa depende dos
    números atuais e precisa ser avisado antes da correção?
