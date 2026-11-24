@@ -1,2 +1,5 @@
+# Arquivos do projeto em LF.
+* text=auto eol=lf
+
 # Arquivos recebidos ficam byte a byte como vieram (CRLF, encoding original).
 recebido/** -text
